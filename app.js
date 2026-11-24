@@ -46,3 +46,6 @@ if(to)video.addEventListener('timeupdate',()=>{if(video.currentTime>=to)video.cu
 startVideo();wide.addEventListener('change',startVideo);
 document.querySelectorAll('video:not(.tt-video)').forEach(v=>v.addEventListener('play',()=>video.pause()));
 new IntersectionObserver(([e])=>{if(!video.src)return;if(e.isIntersecting&&[...document.querySelectorAll('video:not(.tt-video)')].every(v=>v.paused)){video.play().catch(()=>{});}else if(!e.isIntersecting){video.pause();}},{threshold:.05}).observe(hero);})();
+
+// Chapter buttons seek the video right above them.
+document.querySelectorAll('.chapters').forEach(list=>{const video=list.previousElementSibling&&list.previousElementSibling.querySelector('video');if(!video)return;list.querySelectorAll('button[data-t]').forEach(b=>b.addEventListener('click',()=>{const t=Number(b.dataset.t);const go=()=>{video.currentTime=t;video.play().catch(()=>{});};if(video.readyState>=1)go();else{video.preload='metadata';video.addEventListener('loadedmetadata',go,{once:true});video.load();}}));});
