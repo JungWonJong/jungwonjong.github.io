@@ -224,3 +224,19 @@ body{color:#1c1a18}
 .records-grid a:hover img{transform:translateY(-2px);box-shadow:0 12px 22px -16px rgba(20,20,20,.5)}
 .records-grid span{font-size:14px;font-weight:700}
 @media(max-width:700px){.records{padding:20px}.records-grid{grid-template-columns:1fr}.records-grid img{height:150px}}
+
+/* Current device captures, matched to the portfolio document. */
+.device-captures{margin-top:2.25rem;padding-top:2rem;border-top:1px solid #e3ddd3}
+.device-captures h3{font-size:1.5rem;letter-spacing:-.035em;margin:0 0 .75rem;color:#1c1a18}
+.device-captures>p{font-size:1rem;line-height:1.85;color:#4d4843;margin:0 0 1.75rem}
+.device-captures-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;max-width:40rem;margin:0 auto;padding:1.5rem;background:#f3eee7;border-radius:6px}
+.device-captures figure{margin:0;text-align:center;min-width:0}
+.device-captures a{display:block;line-height:0}
+.device-captures img{display:block;max-width:100%;width:auto;height:auto;margin:0 auto;object-fit:contain}
+.device-phone img{max-height:32rem}
+.device-watch-pair{display:grid;gap:1.5rem}
+.device-watch-pair img{max-height:12.5rem}
+.device-captures figcaption{margin-top:.75rem;font-size:.875rem;line-height:1.65;color:#4d4843}
+.device-captures figcaption span{color:#6b645d}
+.device-captures a:focus-visible{outline:3px solid #3b82f6;outline-offset:5px}
+@media(max-width:600px){.device-captures-grid{grid-template-columns:1fr;gap:1.75rem;padding:1.25rem}.device-phone img{max-height:32rem;max-width:16rem}.device-watch-pair{grid-template-columns:1fr 1fr;gap:1rem;align-items:start}.device-watch-pair img{max-height:11rem}.device-captures h3{font-size:1.25rem}}
