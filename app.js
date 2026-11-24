@@ -43,17 +43,34 @@ document.querySelectorAll('video.clip').forEach(video=>{const fig=video.closest(
  if(still){video.removeAttribute('autoplay');video.pause();video.controls=true;return;}
  new IntersectionObserver(([e])=>{if(video.classList.contains('is-full'))return;if(e.isIntersecting&&!fullPlaying())video.play().catch(()=>{});else video.pause();},{threshold:.25}).observe(video);});})();
 
-// Hero: scroll progress drives the text reveal and background video; the muted loop only loads on wide screens.
+// Wide screens use the scroll reveal; mobile shows the uncropped clip in its own frame.
 (()=>{const hero=document.querySelector('.tt-hero');if(!hero)return;const video=hero.querySelector('.tt-video');
 const wide=matchMedia('(min-width:901px)');const still=matchMedia('(prefers-reduced-motion:reduce)');
-const saveData=navigator.connection&&navigator.connection.saveData;
+const saveData=Boolean(navigator.connection&&navigator.connection.saveData);const toggle=hero.querySelector('.hero-video-toggle');
+let inView=false;let userPaused=false;let explicitlyStarted=false;
 let ticking=false;function update(){ticking=false;if(!wide.matches||still.matches){hero.style.setProperty('--p','0');return;}const range=hero.offsetHeight-innerHeight;const p=Math.max(0,Math.min(1,(scrollY-hero.offsetTop)/range));hero.style.setProperty('--p',p.toFixed(4));}
 addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});addEventListener('resize',update);update();
-function startVideo(){if(!wide.matches||still.matches||saveData||video.src)return;video.src=video.dataset.src;
-video.addEventListener('canplay',()=>{video.classList.add('is-ready');video.play().catch(()=>{});},{once:true});}
-startVideo();wide.addEventListener('change',startVideo);
+function syncToggle(){const playing=!video.paused;toggle.textContent=playing?'일시정지':'영상 재생';toggle.setAttribute('aria-label',playing?'소개 영상 일시정지':'소개 영상 재생');}
+function loadVideo(){if(video.getAttribute('src'))return;video.muted=true;video.defaultMuted=true;video.playsInline=true;video.src=video.dataset.src;video.preload='metadata';video.load();}
+function playVisible(){if(!inView||document.hidden||userPaused||fullPlaying()||((still.matches||saveData)&&!explicitlyStarted))return;loadVideo();video.play().catch(syncToggle);}
+toggle.hidden=false;toggle.addEventListener('click',()=>{if(!video.paused){userPaused=true;video.pause();return;}userPaused=false;explicitlyStarted=true;document.querySelectorAll('video').forEach(other=>{if(other!==video)other.pause();});loadVideo();video.play().catch(syncToggle);});
+video.addEventListener('playing',()=>{video.classList.add('is-ready');syncToggle();});video.addEventListener('pause',syncToggle);video.addEventListener('error',()=>{video.classList.remove('is-ready');syncToggle();});
+wide.addEventListener('change',()=>{update();playVisible();});still.addEventListener('change',()=>{if(still.matches&&!explicitlyStarted)video.pause();else playVisible();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)video.pause();else playVisible();});
 document.querySelectorAll('video:not(.tt-video)').forEach(v=>v.addEventListener('play',()=>{if(v.classList.contains('clip')&&!v.classList.contains('is-full'))return;video.pause();}));
-new IntersectionObserver(([e])=>{if(!video.src)return;if(e.isIntersecting&&!fullPlaying()){video.play().catch(()=>{});}else if(!e.isIntersecting){video.pause();}},{threshold:.05}).observe(hero);})();
+new IntersectionObserver(([e])=>{inView=e.isIntersecting;if(inView)playVisible();else video.pause();},{threshold:.05}).observe(hero);})();
 
 // Chapter buttons seek the video right above them.
 document.querySelectorAll('.chapters').forEach(list=>{const video=list.previousElementSibling&&list.previousElementSibling.querySelector('video');if(!video)return;list.querySelectorAll('button[data-t]').forEach(b=>b.addEventListener('click',()=>{const t=Number(b.dataset.t);const go=()=>{video.currentTime=t;video.play().catch(()=>{});};if(video.classList.contains('clip')&&!video.classList.contains('is-full')){window.__toFull(video,go);return;}if(video.readyState>=1)go();else{video.preload='metadata';video.addEventListener('loadedmetadata',go,{once:true});video.load();}}));});
+
+// Discourage casual media saving without interfering with playback, text, or the PDF link.
+document.querySelectorAll('img,video').forEach(media=>{media.draggable=false;});
+document.querySelectorAll('video').forEach(video=>{video.setAttribute('controlslist','nodownload noremoteplayback');video.disablePictureInPicture=true;video.disableRemotePlayback=true;});
+for(const eventName of ['contextmenu','dragstart'])document.addEventListener(eventName,event=>{if(event.target instanceof Element&&event.target.closest('img,video,.media-open,.tt-media'))event.preventDefault();});
+
+// Images remain inside the site instead of linking directly to the original asset.
+(()=>{const dialog=document.querySelector('#media-dialog');const image=dialog.querySelector('img');const zoom=dialog.querySelector('.media-zoom');const caption=dialog.querySelector('.media-caption');let opener=null;
+document.querySelectorAll('.media-open').forEach(button=>button.addEventListener('click',()=>{const original=button.querySelector('img');if(!original)return;opener=button;image.src=original.currentSrc||original.src;image.alt=original.alt;caption.textContent=original.alt;dialog.classList.remove('is-zoomed');zoom.setAttribute('aria-pressed','false');zoom.textContent='원본 크기';dialog.showModal();dialog.querySelector('.media-image-stage').scrollTo(0,0);document.body.classList.add('modal-open');}));
+zoom.addEventListener('click',()=>{const enlarged=dialog.classList.toggle('is-zoomed');zoom.setAttribute('aria-pressed',String(enlarged));zoom.textContent=enlarged?'화면에 맞추기':'원본 크기';});
+dialog.querySelector('.media-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('close',()=>{document.body.classList.remove('modal-open');opener?.focus({preventScroll:true});});
+dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});})();
