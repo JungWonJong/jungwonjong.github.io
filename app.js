@@ -31,7 +31,17 @@ pdfDialog.addEventListener('click',event=>{if(event.target===pdfDialog){const re
 prev.addEventListener('click',()=>showPage(currentPage-1));next.addEventListener('click',()=>showPage(currentPage+1));pdfSelect.addEventListener('change',()=>showPage(Number(pdfSelect.value)));pdfDialog.addEventListener('keydown',event=>{if(event.target===pdfSelect)return;if(event.key==='ArrowLeft'){event.preventDefault();showPage(currentPage-1);}if(event.key==='ArrowRight'){event.preventDefault();showPage(currentPage+1);}});
 
 document.querySelector('.copy-email').addEventListener('click',async()=>{const status=document.querySelector('.copy-status');try{await navigator.clipboard.writeText('wonjongjeong92@gmail.com');status.textContent='복사했습니다.';}catch{status.textContent='위 이메일 주소를 선택해 복사해 주세요.';}});
-document.querySelectorAll('video:not(.tt-video)').forEach(video=>video.addEventListener('play',()=>{document.querySelectorAll('video').forEach(other=>{if(other!==video)other.pause();});}));
+// Only a full-length video (played on purpose) pauses the others; muted highlight loops never do.
+document.querySelectorAll('video:not(.tt-video)').forEach(video=>video.addEventListener('play',()=>{if(video.classList.contains('clip')&&!video.classList.contains('is-full'))return;document.querySelectorAll('video').forEach(other=>{if(other!==video)other.pause();});}));
+const fullPlaying=()=>[...document.querySelectorAll('video:not(.tt-video)')].some(v=>!v.paused&&(!v.classList.contains('clip')||v.classList.contains('is-full')));
+
+// Highlight clips: muted loops that play while on screen; a button swaps in the full video.
+(()=>{const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function toFull(video,then){if(video.classList.contains('is-full')){then&&then();return;}video.classList.add('is-full');video.loop=false;video.muted=false;video.controls=true;video.removeAttribute('autoplay');video.src=video.dataset.full;const fig=video.closest('figure');const btn=fig&&fig.querySelector('.full-btn');if(btn)btn.hidden=true;video.addEventListener('loadedmetadata',()=>{then?then():video.play().catch(()=>{});},{once:true});video.load();}
+window.__toFull=toFull;
+document.querySelectorAll('video.clip').forEach(video=>{const fig=video.closest('figure');const btn=fig&&fig.querySelector('.full-btn');if(btn)btn.addEventListener('click',()=>toFull(video));
+ if(still){video.removeAttribute('autoplay');video.pause();video.controls=true;return;}
+ new IntersectionObserver(([e])=>{if(video.classList.contains('is-full'))return;if(e.isIntersecting&&!fullPlaying())video.play().catch(()=>{});else video.pause();},{threshold:.25}).observe(video);});})();
 
 // Hero: scroll progress drives the text reveal and background video; the muted loop only loads on wide screens.
 (()=>{const hero=document.querySelector('.tt-hero');if(!hero)return;const video=hero.querySelector('.tt-video');
@@ -39,13 +49,11 @@ const wide=matchMedia('(min-width:901px)');const still=matchMedia('(prefers-redu
 const saveData=navigator.connection&&navigator.connection.saveData;
 let ticking=false;function update(){ticking=false;if(!wide.matches||still.matches){hero.style.setProperty('--p','0');return;}const range=hero.offsetHeight-innerHeight;const p=Math.max(0,Math.min(1,(scrollY-hero.offsetTop)/range));hero.style.setProperty('--p',p.toFixed(4));}
 addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});addEventListener('resize',update);update();
-function startVideo(){if(!wide.matches||still.matches||saveData||video.src)return;video.src=video.dataset.src;const from=Number(video.dataset.from||0),to=Number(video.dataset.to||0);
-video.addEventListener('loadedmetadata',()=>{video.currentTime=from;},{once:true});
-video.addEventListener('seeked',()=>{video.classList.add('is-ready');video.play().catch(()=>{});},{once:true});
-if(to)video.addEventListener('timeupdate',()=>{if(video.currentTime>=to)video.currentTime=from;});}
+function startVideo(){if(!wide.matches||still.matches||saveData||video.src)return;video.src=video.dataset.src;
+video.addEventListener('canplay',()=>{video.classList.add('is-ready');video.play().catch(()=>{});},{once:true});}
 startVideo();wide.addEventListener('change',startVideo);
-document.querySelectorAll('video:not(.tt-video)').forEach(v=>v.addEventListener('play',()=>video.pause()));
-new IntersectionObserver(([e])=>{if(!video.src)return;if(e.isIntersecting&&[...document.querySelectorAll('video:not(.tt-video)')].every(v=>v.paused)){video.play().catch(()=>{});}else if(!e.isIntersecting){video.pause();}},{threshold:.05}).observe(hero);})();
+document.querySelectorAll('video:not(.tt-video)').forEach(v=>v.addEventListener('play',()=>{if(v.classList.contains('clip')&&!v.classList.contains('is-full'))return;video.pause();}));
+new IntersectionObserver(([e])=>{if(!video.src)return;if(e.isIntersecting&&!fullPlaying()){video.play().catch(()=>{});}else if(!e.isIntersecting){video.pause();}},{threshold:.05}).observe(hero);})();
 
 // Chapter buttons seek the video right above them.
-document.querySelectorAll('.chapters').forEach(list=>{const video=list.previousElementSibling&&list.previousElementSibling.querySelector('video');if(!video)return;list.querySelectorAll('button[data-t]').forEach(b=>b.addEventListener('click',()=>{const t=Number(b.dataset.t);const go=()=>{video.currentTime=t;video.play().catch(()=>{});};if(video.readyState>=1)go();else{video.preload='metadata';video.addEventListener('loadedmetadata',go,{once:true});video.load();}}));});
+document.querySelectorAll('.chapters').forEach(list=>{const video=list.previousElementSibling&&list.previousElementSibling.querySelector('video');if(!video)return;list.querySelectorAll('button[data-t]').forEach(b=>b.addEventListener('click',()=>{const t=Number(b.dataset.t);const go=()=>{video.currentTime=t;video.play().catch(()=>{});};if(video.classList.contains('clip')&&!video.classList.contains('is-full')){window.__toFull(video,go);return;}if(video.readyState>=1)go();else{video.preload='metadata';video.addEventListener('loadedmetadata',go,{once:true});video.load();}}));});
