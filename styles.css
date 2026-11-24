@@ -214,3 +214,13 @@ body{color:#1c1a18}
 .video-block figcaption .full-btn{font:inherit;font-size:13px;font-weight:700;padding:6px 14px;border-radius:99px;border:1px solid #141414;background:#141414;color:#fff;cursor:pointer;transition:background .2s,border-color .2s}
 .video-block figcaption .full-btn:hover,.video-block figcaption .full-btn:focus-visible{background:#e8551a;border-color:#e8551a}
 .video-block figcaption{align-items:center}
+/* 작업 기록 원본 */
+.records{margin-top:40px;padding:28px 30px;background:#fff;border:1px solid #ebe5dc;border-radius:6px}
+.records h3{margin:6px 0 10px;font-size:22px;font-weight:800;letter-spacing:-.04em;color:#1c1a18}
+.records-lead{margin:0 0 20px;font-size:15px;line-height:1.8;color:#4d4843}
+.records-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.records-grid a{display:flex;flex-direction:column;gap:8px;color:#1c1a18}
+.records-grid img{width:100%;height:190px;object-fit:cover;object-position:top left;border-radius:6px;border:1px solid #e3ddd3;background:#1f2228;transition:transform .2s,box-shadow .2s}
+.records-grid a:hover img{transform:translateY(-2px);box-shadow:0 12px 22px -16px rgba(20,20,20,.5)}
+.records-grid span{font-size:14px;font-weight:700}
+@media(max-width:700px){.records{padding:20px}.records-grid{grid-template-columns:1fr}.records-grid img{height:150px}}
