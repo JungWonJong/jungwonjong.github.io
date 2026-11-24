@@ -10,3 +10,24 @@
 @media(min-width:701px) and (max-width:960px){.project-layout,.project-heading{grid-template-columns:170px 1fr;gap:25px}.project-info dd{font-size:13px}.case-study{padding:22px}.audit-list{grid-template-columns:1fr}.farm-showcase{grid-template-columns:1fr}.farm-intro h3{font-size:24px}.phone-video{max-width:210px}.farm-record{display:flex;gap:24px}.evidence-row dd{font-size:17px}.section-heading>p{font-size:14px}}
 @media(max-width:700px){.hero-note{font-size:12px}.section-heading>p{font-size:14px}.project-card>p{font-size:14px}.card-bottom{font-size:12px}.project-info dd{font-size:12px}.project-info dt{font-size:11px}.project-info .small-link{font-size:12px}.project-disclaimer{font-size:11px}.project-info .role-label{font-size:12px}.body-lead{font-size:15px}.video-block figcaption{font-size:10px}.case-study p{font-size:15px}.case-study p.case-kicker{font-size:10px}.tabs{gap:17px}.tabs button{font-size:12px}.plain-checks{font-size:13px}table{font-size:12px}thead th{font-size:10px}.case-study .measurement-note{font-size:11px}.evidence-details summary{font-size:13px}.evidence-details p{font-size:14px}.farm-intro>p:not(.case-kicker){font-size:14px}.farm-record dt{font-size:11px}.farm-record dd{font-size:13px}.audit-list strong{font-size:15px}.audit-list p{font-size:14px}.audit-list span{font-size:11px}.case-study p.result-line{font-size:13px}.phase-tabs button{font-size:12px}.phase-tabs button span{font-size:9px}.phase-caption p#phase-description{font-size:14px}.phase-caption p#phase-label{font-size:10px}.process-grid p{font-size:15px}.process-note>p{font-size:13px}.pdf-copy>p:not(.eyebrow){font-size:14px}.pdf-copy>p.file-note{font-size:11px}.chart-legend{font-size:10px}.bar-row{font-size:11px;grid-template-columns:75px 1fr}.bar{font-size:10px}.site-footer{font-size:11px}.copy-email,.copy-status{font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* ---- 가독성 보정: 작은 글씨 크기·대비 (본문·라벨 4.5:1 이상) ---- */
+/* 밝은 배경 위 보조 글씨 */
+.hero-note,.intro-inner span,.card-bottom span,.project-number span,.project-info dt,.evidence-row dt,.evidence-row dd small,.project-disclaimer,.measurement-note,.evidence-details figure figcaption,.phase-caption>p,.phase-tabs [aria-selected="false"] span,.audit-list span,.pdf-copy .file-note,.intro-inner>p,.site-footer p,.site-footer a,.case-study tr>th,.tabs [role="tab"][aria-selected="false"],.phase-tabs [role="tab"][aria-selected="false"]{color:#56655b!important}
+.case-kicker{color:#4b6a45!important}
+/* 설명 문단 */
+.evidence-details>div>p,.pdf-copy>p:not(.file-note),.case-study td,.audit-list p{color:#47554c!important}
+/* 성능 탭 그래프 */
+.gpu-chart span:not(.bar){color:#56655b!important}
+.gpu-chart .bar.before{color:#36452f!important}
+.gpu-chart .bar.after{background:#4a7449!important}
+/* 구황이네 밭 파란 패널 */
+.farm-intro>p{color:#44576a!important}
+.farm-intro .case-kicker,.farm-record dt,.phone-video figcaption{color:#46596a!important}
+/* 연락처 패널 */
+.contact-section .eyebrow,.contact-links>p,.contact-links .copy-email{color:#4b5f4b!important}
+/* 표지 카드 */
+.visual-bottom p span{color:#566650!important}
+/* 너무 작은 글씨 키우기 */
+.brand-sub,.eyebrow,.case-kicker,.project-number span,.intro-inner span,.process-num,.process-note span,.visual-top span,.visual-bottom p span,.media-tag,.pdf-cover-button span{font-size:11px!important}
+.project-info dt,.evidence-row dt,.evidence-row dd small,.project-disclaimer,.measurement-note,.evidence-details figure figcaption,.phase-caption>p,.phase-tabs button span,.audit-list span,.farm-record dt,.case-study tr>th,.phone-video figcaption{font-size:13px!important}
